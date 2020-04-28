@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-script that handles RESTful API actions
+script that handles RESTful API actions for City
 """
 from api.v1.views import app_views
 from flask import Flask, jsonify, abort, request
