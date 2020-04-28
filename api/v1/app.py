@@ -1,10 +1,12 @@
 #!/usr/bin/python3
-""" This starts the API """
-
+"""
+script that starts and returns the status of the API
+"""
 from models import storage
 from api.v1.views import app_views
 from os import getenv
 from flask import Flask, Blueprint, jsonify
+
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
@@ -14,6 +16,14 @@ app.register_blueprint(app_views)
 def end_session(response_or_exc):
     """ Ends the current DB session """
     storage.close()
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    """ handles 404 errors """
+    status = {"error": "Not found"}
+    return jsonify(status), 404
+
 
 if __name__ == "__main__":
     HBNB_API_HOST = getenv('HBNB_API_HOST')
