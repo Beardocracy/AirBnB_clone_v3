@@ -14,12 +14,13 @@ def status():
     return jsonify(status)
 
 
-@app_views.route('stats', strict_slashes=False)
+@app_views.route('/api/v1/stats', strict_slashes=False)
 def obj_stats():
     """ Retrieves the number of each object by type """
     classes = {"amenities": "Amenity",
                "cities": "City",
                "places": "Place",
+               "reviews": "Review",
                "states": "State",
                "users": "User"}
     for key, value in classes.items():
