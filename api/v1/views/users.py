@@ -44,8 +44,6 @@ def add_user():
     user_json = request.get_json()
     if not user_json:
         abort(400, {'Not a JSON'})
-    if 'name' not in user_json:
-        abort(400, {'Missing name'})
     if 'email' not in user_json:
         abort(400, {'Missing email'})
     if 'password' not in user_json:
