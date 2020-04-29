@@ -9,9 +9,9 @@ from models.city import City
 from models.state import State
 
 
-@app_views.route('/api/v1/states/<states_id>/cities', methods=['GET'],
+@app_views.route('/api/v1/states/<state_id>/cities', methods=['GET'],
                  strict_slashes=False)
-def list_cities():
+def list_cities(state_id):
     """ lists all cities in JSON format """
     state = storage.get("State", state_id)
     if state is None:
