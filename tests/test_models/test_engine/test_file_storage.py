@@ -128,7 +128,7 @@ class TestFileStorage(unittest.TestCase):
     def test_close(self):
         """ Tests the close method of filestorage """
         self.assertIsInstance(storage.count(), int)
-        self.assertTrue(isinstance(storage.count("State"), int))
+        self.assertIsInstance(storage.count("State"), int)
         all_objects = storage.all()
         if all_objects:
             self.assertEqual(storage.count(), len(all_objects))
