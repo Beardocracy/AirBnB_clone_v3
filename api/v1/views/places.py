@@ -20,7 +20,7 @@ def list_places(city_id):
     for place in storage.all("Place").values():
         if place.city_id == city_id:
             places_list.append(place.to_dict())
-    return jsonify(places_list), 200
+    return jsonify(places_list)
 
 
 @app_views.route('/api/v1/places/<place_id>', methods=['GET'],
@@ -55,12 +55,14 @@ def create_place(city_id):
     place_json = request.get_json
     if place_json is None:
         abort(400, {"Not a JSON"})
-    if 'name' not in place_json:
-        abort(400, {"Missing name"})
+    if 'user_id' not in place_json:
+        abort(400, {"Missing user_id"})
     user_id = place_json["user_id"]
     user = storage.get("User", user_id)
     if user is None:
         abort(404)
+    if not place_json["name"]:
+        abort(400, {"Missing name"})
     place_json["city_id"] = city_id
     new_place = Place(**place_json)
     storage.new(new_place)
@@ -72,12 +74,12 @@ def create_place(city_id):
                  strict_slashes=False)
 def update_place(place_id):
     """ updates a city object """
-    place_json = request.get_json
-    if place_json is None:
-        abort(400, {"Not a JSON"})
     place = storage.get("Place", place_id)
     if place is None:
         abort(404)
+    place_json = request.get_json
+    if place_json is None:
+        abort(400, {"Not a JSON"})
     ignore_keys = ["id", "created_at", "updated_at", "state_id"]
     for key, value in place_json.items():
         if key not in ignore_keys:
