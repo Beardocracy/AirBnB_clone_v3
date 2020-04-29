@@ -101,7 +101,7 @@ class TestFileStorage(unittest.TestCase):
     def test_count(self):
         """ Test for the count method of database """
         self.assertIsInstance(storage.count(), int)
-        self.assertTrue(isinstance(storage.count("State"), int))
+        self.assertIsInstance(storage.count("State"), int)
         all_objects = storage.all()
         if all_objects:
             self.assertEqual(storage.count(), len(all_objects))
