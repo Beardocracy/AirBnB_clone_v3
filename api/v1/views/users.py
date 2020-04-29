@@ -34,7 +34,7 @@ def delete_user(user_id):
         abort(404)
     user_obj.delete()
     storage.save()
-    return {}
+    return {}, 200
 
 
 @app_views.route('/api/v1/users', methods=['POST'],
@@ -65,4 +65,4 @@ def update_user(user_id):
     for k, v in json_info.items():
         setattr(user, k, v)
     storage.save()
-    return user.to_dict()
+    return user.to_dict(), 200
