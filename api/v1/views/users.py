@@ -60,14 +60,14 @@ def add_user():
                  strict_slashes=False)
 def update_user(user_id):
     """ Updates a user """
-    user = storage.get('User', user_id)
-    if not user:
-        abort(404)
     json_info = request.get_json()
     if not json_info:
         abort(400, {'Not a JSON'})
+    user = storage.get('User', user_id)
+    if not user:
+        abort(404)
     for k, v in json_info.items():
-        if key not in ['id', 'email', 'created_at', 'updated_at']:
+        if k not in ['id', 'email', 'created_at', 'updated_at']:
             setattr(user, k, v)
     storage.save()
     return user.to_dict(), 200
