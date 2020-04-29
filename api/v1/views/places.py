@@ -52,7 +52,7 @@ def create_place(city_id):
     city = storage.get("City", city_id)
     if city is None:
         abort(404)
-    place_json = request.get_json
+    place_json = request.get_json()
     if place_json is None:
         abort(400, {"Not a JSON"})
     if 'user_id' not in place_json:
@@ -77,7 +77,7 @@ def update_place(place_id):
     place = storage.get("Place", place_id)
     if place is None:
         abort(404)
-    place_json = request.get_json
+    place_json = request.get_json()
     if place_json is None:
         abort(400, {"Not a JSON"})
     ignore_keys = ["id", "created_at", "updated_at", "state_id"]
