@@ -47,13 +47,13 @@ def remove_amenity_connection(place_id, amenity_id):
         if amenity in place.amenities:
             place.amenities.remove(amenity)
             place.save()
-            return {}, 201
+            return jsonify({}), 200
     else:
         if "amenity_ids" in place.to_dict().keys():
             if amenity_id in place.amenity_ids:
                 place.amenity_ids.remove(amenity_id)
                 place.save()
-                return {}, 201
+                return jsonify({}), 200
             else:
                 abort(404)
     return jsonify({}), 200
