@@ -31,6 +31,6 @@ class User(BaseModel, Base):
 
     def __setattr__(self, key, value):
         """ Hashes the password during object creation """
-        if key == 'password':
+        if key == "password":
             value = hashlib.md5(value.encode()).hexdigest()
         super.__setattr__(self, key, value)
