@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """ holds class User"""
 import models
 from models.base_model import BaseModel, Base
@@ -33,4 +33,4 @@ class User(BaseModel, Base):
         """ Hashes the password during object creation """
         if key == "password":
             value = hashlib.md5(value.encode()).hexdigest()
-        super.__setattr__(self, key, value)
+        super().__setattr__(self, key, value)
