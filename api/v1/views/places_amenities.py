@@ -12,7 +12,7 @@ from os import getenv
 
 @app_views.route('/api/v1/places/<place_id>/amenities', methods=['GET'],
                  strict_slashes=False)
-def list_amenities(place_id):
+def list_amenities_of_a_place(place_id):
     """ lists amenities for a place in json format """
     place = storage.get("Place", place_id)
     if place is None:
@@ -20,16 +20,16 @@ def list_amenities(place_id):
     amenities_list = []
     amenities_id_list = []
     if getenv("HBNB_TYPE_STORAGE") == "db":
-        for amenity in place.amenities.amenity_id:
-            amenities_id_list.append(amenity)
+        amenities_list = [am.to_dict() for am in place.amenities]
+        return jsonify(amenities_list)
     else:
         if "amenity_ids" in place.to_dict().keys():
             amenities_id_list = place.to_dict()["amenity_ids"]
         else:
             return jsonify([])
     for amenity_id in amenities_id_list:
-        amenity = storage.get('Amenity', amenity_id).to_dict()
-        amenities_list.append(amenity)
+        amenity = storage.get('Amenity', amenity_id)
+        amenities_list.append(amenity.to_dict())
     return jsonify(amenities_list)
 
 
@@ -44,11 +44,13 @@ def remove_amenity_connection(place_id, amenity_id):
     if amenity is None:
         abort(404)
     if getenv("HBNB_TYPE_STORAGE") == "db":
-        return "Fix this"
+        if amenity in place.amenities:
+            place.amenities.remove(amenity)
+            place.save()
+            return {}, 201
     else:
         if "amenity_ids" in place.to_dict().keys():
             if amenity_id in place.amenity_ids:
-                #delete the amenity id from the amenity_ids and save place
                 place.amenity_ids.remove(amenity_id)
                 place.save()
                 return {}, 201
@@ -68,10 +70,15 @@ def create_amenity_connection(place_id, amenity_id):
     if not amenity:
         abort(404)
     if getenv("HBNB_TYPE_STORAGE") == "db":
-        return "Fix this in post"
+        if amenity in place.amenities:
+            return jsonify(amenity.to_dict())
+        else:
+            place.amenities.append(amenity)
+            place.save()
+            return jsonify(amenity.to_dict()), 201
     else:
         if "amenity_ids" in place.__dict__.keys():
-            if amenity_id in place.__dict__["amenity_ids"]:
+            if amenity_id in place.amenity_ids:
                 return jsonify(amenity.to_dict()), 200
             place.amenity_ids.append(amenity_id)
             place.save()
@@ -79,6 +86,6 @@ def create_amenity_connection(place_id, amenity_id):
         else:
             place.__dict__.update({"amenity_ids": [amenity_id]})
             place.save()
-            return place.__dict__
+            return jsonify(amenity.to_dict()), 201
     storage.save()
     return jsonify(amenity.to_dict()), 201
