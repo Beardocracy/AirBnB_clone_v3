@@ -7,6 +7,9 @@ from flask import Flask, jsonify, abort, request
 from models import storage
 from models.city import City
 from models.place import Place
+from models.amenity import Amenity
+from models.state import State
+from os import getenv
 
 
 @app_views.route('/api/v1/cities/<city_id>/places', methods=['GET'],
@@ -86,3 +89,64 @@ def update_place(place_id):
             setattr(place, key, value)
     storage.save()
     return jsonify(place.to_dict()), 200
+
+
+@app_views.route('/api/v1/places_search', methods=['POST'],
+                 strict_slashes=False)
+def search_places():
+    """ Returns all places based on search parameters """
+    json_info = request.get_json()
+    if json_info is None:
+        abort(400, {"Not a JSON"})
+    state_ids = []
+    city_ids = []
+    amenity_ids = []
+    places = []
+    state_places = []
+    city_list = []
+
+    if "states" in json_info:
+        state_ids = json_info["states"]
+        for state_id in state_ids:
+            state = storage.get("State", state_id)
+            if state:
+                for city in storage.all("City").values():
+                    if city.state_id == state_id:
+                        city_list.append(city.id)
+        if len(city_list) != 0:
+            for place in storage.all("Place").values():
+                if place.city_id in city_list:
+                    places.append(place)
+
+    if "cities" in json_info:
+        city_ids = json_info["cities"]
+        for city_id in city_ids:
+            for place in storage.all("Place").values():
+                if place.city_id == city_id and place not in places:
+                    places.append(place)
+
+    if len(places) == 0:
+        places = storage.all("Place").values()
+    place_matches = list(places).copy()
+    if "amenities" in json_info:
+        amenity_ids = json_info["amenities"]
+        for amenity_id in amenity_ids:
+            for place in places:
+                if getenv("HBNB_TYPE_STORAGE") == "db":
+                    place_amenity_ids = [am.id for am in place.amenities]
+                    if amenity_id not in place_amenity_ids:
+                        if place in place_matches:
+                            place_matches.remove(place)
+                else:
+                    if amenity_id not in place.amenity_ids:
+                        if place in place_matches:
+                            place_matches.remove(place)
+
+    final_list = []
+    for pm in place_matches:
+        final_list.append(pm.to_dict())
+    for pl in final_list:
+        if "amenities" in pl:
+            del pl["amenities"]
+
+    return jsonify(final_list)
